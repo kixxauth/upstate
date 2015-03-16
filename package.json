@@ -1,19 +1,30 @@
 {
-  "name": "upstate",
-  "version": "0.0.0",
-  "description": "A tool for building and managing remote applications.",
-  "preferGlobal": true,
+  "name"         : "upstate",
+  "version"      : "0.0.0",
+  "description"  : "A tool for building and managing remote applications.",
+  "preferGlobal" : true,
+  "main"         : "index.js",
   "bin": {
-    "ups": "bin/cli.js",
-    "upstate": "bin/cli.js"
+    "ups"     : "bin/cli.js",
+    "upstate" : "bin/cli.js"
   },
-  "main": "index.js",
+  "dependencies": {
+    "coffee-script" : "~1.9.1",
+    "colors"        : "~1.0.3",
+    "filepath"      : "~0.8.1",
+    "ini"           : "~1.3.3",
+    "iou"           : "~2.1.0",
+    "lodash"        : "~3.5.0",
+    "nodegit"       : "~0.2.7",
+    "ssh2"          : "~0.4.4",
+    "yargs"         : "~3.5.3"
+  },
   "repository": {
-    "type": "git",
-    "url": "https://github.com/kixxauth/upstate.git"
+    "type" : "git",
+    "url"  : "https://github.com/kixxauth/upstate.git"
   },
-  "bugs": "https://github.com/kixxauth/upstate/issues",
-  "keywords": ["build", "deployment"],
-  "author": "Kris Walker <kris@kixx.name> (www.kixx.name)",
-  "license": "MIT"
+  "bugs"     : "https://github.com/kixxauth/upstate/issues",
+  "keywords" : ["build", "deployment"],
+  "author"   : "Kris Walker <kris@kixx.name> (www.kixx.name)",
+  "license"  : "MIT"
 }
