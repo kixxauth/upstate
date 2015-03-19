@@ -51,8 +51,10 @@ var newUpstate = Objects.factory([Action], {
   },
 
   loadTasks: function (args) {
+    debugger;
     return LOADER.loadTasks({
-      task_directory: FilePath.create().append('upstate')
+      argv: args.argv,
+      task_directory: FilePath.create().append('upstate'),
     }).then(function (taskRunner) {
       args.taskRunner = taskRunner;
       return args;
@@ -63,6 +65,7 @@ var newUpstate = Objects.factory([Action], {
     var
     cmd = args.argv._[0];
     if (cmd === 'tasks') {
+      printTasksAndExit(args.taskRunner.tasks);
     }
   },
 
@@ -87,5 +90,11 @@ function printHelpAndExit(msg) {
   } else {
     console.log(Yargs.help());
   }
+  process.exit(1);
+}
+
+
+function printTasksAndExit(tasks) {
+  debugger;
   process.exit(1);
 }
