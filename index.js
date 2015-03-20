@@ -40,20 +40,19 @@ var newUpstate = Objects.factory([Action], {
     var
     argv = args.argv;
 
-    if (argv.help) {
+    if (!argv._.length && argv.help) {
       printHelpAndExit();
     } else if (!argv._.length) {
       printHelpAndExit('A command is required.');
     } else if (['help', 'run', 'tasks'].indexOf(argv._[0]) === -1) {
       printHelpAndExit('"'+ argv._[0] +'" is not a valid command');
     }
+    Yargs.reset();
     return args;
   },
 
   loadTasks: function (args) {
-    debugger;
     return LOADER.loadTasks({
-      argv: args.argv,
       task_directory: FilePath.create().append('upstate'),
     }).then(function (taskRunner) {
       args.taskRunner = taskRunner;
@@ -95,6 +94,15 @@ function printHelpAndExit(msg) {
 
 
 function printTasksAndExit(tasks) {
-  debugger;
+  var keys = Object.keys(tasks);
+  if (keys.length) {
+    console.log('Registered tasks:');
+    keys.forEach(function (key) {
+      var task = tasks[key];
+      console.log(' - %s : %s', task.id, task.description);
+    });
+  } else {
+    console.log('No tasks have been registered.');
+  }
   process.exit(1);
 }
