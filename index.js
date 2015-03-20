@@ -62,9 +62,13 @@ var newUpstate = Objects.factory([Action], {
 
   checkCommand: function (args) {
     var
-    cmd = args.argv._[0];
+    cmd = args.argv._[0],
+    taskId = args.argv._[1];
+
     if (cmd === 'tasks') {
       printTasksAndExit(args.taskRunner.tasks);
+    } else if (cmd === 'help') {
+      printTaskHelpAndExit(args.taskRunner.tasks[taskId]);
     }
   },
 
@@ -105,4 +109,11 @@ function printTasksAndExit(tasks) {
     console.log('No tasks have been registered.');
   }
   process.exit(1);
+}
+
+
+function printTaskHelpAndExit(task) {
+  console.log('\n'+ task.id);
+  console.log('\n'+ task.description);
+  console.log(task.help);
 }
