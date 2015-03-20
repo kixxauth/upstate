@@ -80,7 +80,7 @@ var newUpstate = Objects.factory([Action], {
     var
     promise;
     try {
-      promise = args.taskRunner.run(args.taskId, Object.create(null))
+      promise = args.taskRunner.run(args.taskId, args)
         .then(function (result) {
           args.result = result;
           return args;
