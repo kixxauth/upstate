@@ -2,6 +2,7 @@ var
 FilePath = require('filepath').FilePath,
 Yargs    = require('yargs'),
 
+Promise = require('./lib/promise'),
 Objects = require('./lib/objects'),
 Action  = require('./lib/action').Action,
 log     = require('./lib/log'),
@@ -19,6 +20,7 @@ var newUpstate = Objects.factory([Action], {
     this.q(this.checkUser);
     this.q(this.loadTasks);
     this.q(this.checkCommand);
+    this.q(this.runTask);
     this.q(this.fin);
   },
 
@@ -70,10 +72,33 @@ var newUpstate = Objects.factory([Action], {
     } else if (cmd === 'help') {
       printTaskHelpAndExit(args.taskRunner.tasks[taskId]);
     }
+    args.taskId = taskId;
+    return args;
+  },
+
+  runTask: function (args) {
+    var
+    promise;
+    try {
+      promise = args.taskRunner.run(args.taskId, Object.create(null))
+        .then(function (result) {
+          args.result = result;
+          return args;
+        });
+    } catch (err) {
+      if (err.code === 'ENOTASK') {
+        promise = Promise.reject({
+          message: 'The task '+ args.taskId +' does not exist.'
+        });
+      } else {
+        promise = Promise.reject(err);
+      }
+    }
+    return promise;
   },
 
   fin: function (args) {
-    console.log('DONE');
+    console.log('DONE', args);
   },
 
   onerror: function (err) {
