@@ -6,6 +6,7 @@ Promise = require('./lib/promise'),
 Objects = require('./lib/objects'),
 Action  = require('./lib/action').Action,
 log     = require('./lib/log'),
+Plugins = require('./lib/Plugins'),
 LOADER  = require('./lib/loader');
 
 
@@ -15,8 +16,10 @@ exports.main = function () {
 
 var newUpstate = Objects.factory([Action], {
 
-  initialize: function () {
+  initialize: function (args) {
     this.q(this.parseArgv);
+    this.q(this.setDirectory);
+    this.q(this.loadConfigs);
     this.q(this.checkUser);
     this.q(this.loadTasks);
     this.q(this.checkCommand);
@@ -38,6 +41,39 @@ var newUpstate = Objects.factory([Action], {
     return args;
   },
 
+  setDirectory: function (args) {
+    args.directory = FilePath.create().append('upstate');
+    return args;
+  },
+
+  loadConfigs: function (args) {
+    var
+    confPath = args.directory.append('config.ini');
+
+    return Plugins.PLUGINS.read_ini.api(confPath)
+      .then(function (config) {
+        config = config || {};
+        var
+        userDataPath = (config.paths || {}).user_data;
+        args.config = config;
+
+        if (userDataPath) {
+          userDataPath = userDataPath.replace(/^\~/, FilePath.home().toString());
+          return Plugins.PLUGINS.read_ini.api(userDataPath)
+            .then(function (userData) {
+              var msg;
+              if (!userData) {
+                msg = 'User data file not found at '+ userDataPath;
+                return Promise.reject(new Error(msg));
+              }
+              args.user_data = userData;
+              return args;
+            });
+        }
+        return args;
+      });
+  },
+
   checkUser: function (args) {
     var
     argv = args.argv;
@@ -55,7 +91,7 @@ var newUpstate = Objects.factory([Action], {
 
   loadTasks: function (args) {
     return LOADER.loadTasks({
-      task_directory: FilePath.create().append('upstate'),
+      task_directory: args.directory
     }).then(function (taskRunner) {
       args.taskRunner = taskRunner;
       return args;
@@ -98,7 +134,7 @@ var newUpstate = Objects.factory([Action], {
   },
 
   fin: function (args) {
-    console.log('DONE', args);
+    log.stdout(' *** upstate run complete ***');
   },
 
   onerror: function (err) {
