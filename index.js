@@ -1,12 +1,12 @@
 var
 FilePath = require('filepath').FilePath,
 Yargs    = require('yargs'),
+INI      = require('ini'),
 
 Promise = require('./lib/promise'),
 Objects = require('./lib/objects'),
 Action  = require('./lib/action').Action,
-log     = require('./lib/log'),
-Plugins = require('./lib/Plugins'),
+Log     = require('./lib/log'),
 LOADER  = require('./lib/loader');
 
 
@@ -20,6 +20,7 @@ var newUpstate = Objects.factory([Action], {
     this.q(this.parseArgv);
     this.q(this.setDirectory);
     this.q(this.loadConfigs);
+    this.q(this.initLogger);
     this.q(this.checkUser);
     this.q(this.loadTasks);
     this.q(this.checkCommand);
@@ -50,7 +51,7 @@ var newUpstate = Objects.factory([Action], {
     var
     confPath = args.directory.append('config.ini');
 
-    return Plugins.PLUGINS.read_ini.api(confPath)
+    return readIni(confPath)
       .then(function (config) {
         config = config || {};
         var
@@ -59,8 +60,7 @@ var newUpstate = Objects.factory([Action], {
         args.config = config;
 
         if (!config.project_name) {
-          log.error('config error - missing project_name - %s', confPath.toString());
-          log.stderr('Missing project_name in %s', confPath.toString());
+          console.error('Missing project_name in %s', confPath.toString());
           err = new Error('Missing project_name definition in config file.');
           err.code = 'ECONFIG';
           throw err;
@@ -68,7 +68,7 @@ var newUpstate = Objects.factory([Action], {
 
         if (userDataPath) {
           userDataPath = userDataPath.replace(/^\~/, FilePath.home().toString());
-          return Plugins.PLUGINS.read_ini.api(userDataPath)
+          return readIni(userDataPath)
             .then(function (userData) {
               var msg;
               if (!userData) {
@@ -81,6 +81,18 @@ var newUpstate = Objects.factory([Action], {
         }
         return args;
       });
+  },
+
+  initLogger: function (args) {
+    return Log.newLogger({
+      directory : FilePath.create().append('log', 'upstate'),
+      filename  : args.config.project_name
+    }).then(function (api) {
+      args.log = api;
+      args.log.info('performing upstate run');
+      args.log.stdout('Performing upstate run ...');
+      return args;
+    });
   },
 
   checkUser: function (args) {
@@ -100,7 +112,8 @@ var newUpstate = Objects.factory([Action], {
 
   loadTasks: function (args) {
     return LOADER.loadTasks({
-      task_directory: args.directory
+      task_directory : args.directory,
+      log            : args.log
     }).then(function (taskRunner) {
       args.taskRunner = taskRunner;
       return args;
@@ -143,15 +156,15 @@ var newUpstate = Objects.factory([Action], {
   },
 
   fin: function (args) {
-    log.stdout(' *** upstate run complete ***');
+    args.log.info('upstate run complete');
+    args.log.stdout('This upstate run is complete');
   },
 
   onerror: function (err) {
     var
     stack = err.stack || err.message || 'No stack trace';
-    log.error('uncaught error - %s', stack);
-    log.stderr('Error: uncaught error:');
-    log.stderr(stack);
+    console.error('Error: uncaught error:');
+    console.error(stack);
     return null;
   }
 });
@@ -188,3 +201,14 @@ function printTaskHelpAndExit(task) {
   console.log(task.help);
   process.exit(1);
 }
+
+
+function readIni(path) {
+  path = FilePath.create(path);
+  return path.read().then(function (text) {
+    if (!text) {
+      return null;
+    }
+    return INI.parse(text);
+  });
+};
