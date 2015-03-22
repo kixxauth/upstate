@@ -54,8 +54,17 @@ var newUpstate = Objects.factory([Action], {
       .then(function (config) {
         config = config || {};
         var
+        err,
         userDataPath = (config.paths || {}).user_data;
         args.config = config;
+
+        if (!config.project_name) {
+          log.error('config error - missing project_name - %s', confPath.toString());
+          log.stderr('Missing project_name in %s', confPath.toString());
+          err = new Error('Missing project_name definition in config file.');
+          err.code = 'ECONFIG';
+          throw err;
+        }
 
         if (userDataPath) {
           userDataPath = userDataPath.replace(/^\~/, FilePath.home().toString());
