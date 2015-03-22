@@ -177,4 +177,5 @@ function printTaskHelpAndExit(task) {
   console.log('\n'+ task.id);
   console.log('\n'+ task.description);
   console.log(task.help);
+  process.exit(1);
 }
