@@ -106,7 +106,6 @@ var newUpstate = Objects.factory([Action], {
     } else if (['help', 'run', 'tasks'].indexOf(argv._[0]) === -1) {
       printHelpAndExit('"'+ argv._[0] +'" is not a valid command');
     }
-    Yargs.reset();
     return args;
   },
 
