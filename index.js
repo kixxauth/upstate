@@ -1,13 +1,13 @@
 var
 FilePath = require('filepath').FilePath,
 Yargs    = require('yargs'),
-INI      = require('ini'),
 
 Promise = require('./lib/promise'),
 Objects = require('./lib/objects'),
 Action  = require('./lib/action').Action,
 Log     = require('./lib/log'),
-LOADER  = require('./lib/loader');
+LOADER  = require('./lib/loader'),
+Configs = require('./lib/config_loader');
 
 
 exports.main = function () {
@@ -18,7 +18,7 @@ var newUpstate = Objects.factory([Action], {
 
   initialize: function (args) {
     this.q(this.parseArgv);
-    this.q(this.setDirectory);
+    this.q(this.setValues);
     this.q(this.loadConfigs);
     this.q(this.initLogger);
     this.q(this.checkUser);
@@ -38,49 +38,30 @@ var newUpstate = Objects.factory([Action], {
         alias    : 'help',
         describe : 'Print out this help text and exit.'
       })
+      .option('e', {
+        alias    : 'env',
+        describe : 'The environment to use.',
+        demand   : true
+      })
       .argv;
     return args;
   },
 
-  setDirectory: function (args) {
+  setValues: function (args) {
+    args.environment = args.argv.env;
     args.directory = FilePath.create().append('upstate');
     return args;
   },
 
   loadConfigs: function (args) {
-    var
-    confPath = args.directory.append('config.ini');
-
-    return readIni(confPath)
-      .then(function (config) {
-        config = config || {};
-        var
-        err,
-        userDataPath = (config.paths || {}).user_data;
-        args.config = config;
-
-        if (!config.project_name) {
-          console.error('Missing project_name in %s', confPath.toString());
-          err = new Error('Missing project_name definition in config file.');
-          err.code = 'ECONFIG';
-          throw err;
-        }
-
-        if (userDataPath) {
-          userDataPath = userDataPath.replace(/^\~/, FilePath.home().toString());
-          return readIni(userDataPath)
-            .then(function (userData) {
-              var msg;
-              if (!userData) {
-                msg = 'User data file not found at '+ userDataPath;
-                return Promise.reject(new Error(msg));
-              }
-              args.user_data = userData;
-              return args;
-            });
-        }
-        return args;
-      });
+    return Configs.newConfigLoader().run({
+      configPath  : args.directory.append('config.ini'),
+      environment : args.environment
+    }).then(function (configs) {
+      args.config = configs.config;
+      args.user_data = configs.user_data;
+      return args;
+    });
   },
 
   initLogger: function (args) {
@@ -200,14 +181,3 @@ function printTaskHelpAndExit(task) {
   console.log(task.help);
   process.exit(1);
 }
-
-
-function readIni(path) {
-  path = FilePath.create(path);
-  return path.read().then(function (text) {
-    if (!text) {
-      return null;
-    }
-    return INI.parse(text);
-  });
-};
