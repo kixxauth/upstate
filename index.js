@@ -185,7 +185,7 @@ function printTasksAndExit(tasks) {
     console.log('Registered tasks:');
     keys.forEach(function (key) {
       var task = tasks[key];
-      console.log(' - %s : %s', task.id, task.description);
+      console.log('- %s:\n%s', task.id, task.description);
     });
   } else {
     console.log('No tasks have been registered.');
