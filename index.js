@@ -41,7 +41,6 @@ var newUpstate = Objects.factory([Action], {
       .option('e', {
         alias    : 'env',
         describe : 'The environment to use.',
-        demand   : true
       })
       .argv;
     return args;
@@ -86,6 +85,8 @@ var newUpstate = Objects.factory([Action], {
       printHelpAndExit('A command is required.');
     } else if (['help', 'run', 'tasks'].indexOf(argv._[0]) === -1) {
       printHelpAndExit('"'+ argv._[0] +'" is not a valid command');
+    } else if (!argv.env) {
+      printHelpAndExit('The -e --env argument must be passed.');
     }
     return args;
   },
