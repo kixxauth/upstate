@@ -19,9 +19,9 @@ var newUpstate = Objects.factory([Action], {
   initialize: function (args) {
     this.q(this.parseArgv);
     this.q(this.setValues);
+    this.q(this.checkArgv);
     this.q(this.loadConfigs);
     this.q(this.initLogger);
-    this.q(this.checkUser);
     this.q(this.loadTasks);
     this.q(this.checkCommand);
     this.q(this.runTask);
@@ -52,6 +52,22 @@ var newUpstate = Objects.factory([Action], {
     return args;
   },
 
+  checkArgv: function (args) {
+    var
+    argv = args.argv;
+
+    if (!argv._.length && argv.help) {
+      printHelpAndExit();
+    } else if (!argv._.length) {
+      printHelpAndExit('A command is required.');
+    } else if (['help', 'run', 'tasks'].indexOf(argv._[0]) === -1) {
+      printHelpAndExit('"'+ argv._[0] +'" is not a valid command');
+    } else if (!argv.env) {
+      printHelpAndExit('The -e --env argument must be passed.');
+    }
+    return args;
+  },
+
   loadConfigs: function (args) {
     return Configs.newConfigLoader().run({
       configPath  : args.directory.append('config.ini'),
@@ -73,22 +89,6 @@ var newUpstate = Objects.factory([Action], {
       args.log.stdout('Performing upstate run ...');
       return args;
     });
-  },
-
-  checkUser: function (args) {
-    var
-    argv = args.argv;
-
-    if (!argv._.length && argv.help) {
-      printHelpAndExit();
-    } else if (!argv._.length) {
-      printHelpAndExit('A command is required.');
-    } else if (['help', 'run', 'tasks'].indexOf(argv._[0]) === -1) {
-      printHelpAndExit('"'+ argv._[0] +'" is not a valid command');
-    } else if (!argv.env) {
-      printHelpAndExit('The -e --env argument must be passed.');
-    }
-    return args;
   },
 
   loadTasks: function (args) {
