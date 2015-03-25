@@ -2,7 +2,7 @@ var
 UTIL     = require('util'),
 FilePath = require('filepath').FilePath,
 COLORS   = require('colors'),
-Promise  = require('./promise');
+Promise  = require('../lib/promise');
 
 exports.initialize = function (API, args) {
   return newLogger({

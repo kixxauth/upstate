@@ -1,3 +1,7 @@
+var
+FilePath = require('filepath').FilePath;
+
+
 exports.initialize = function (API, args) {
 
   API.git_config = function () {

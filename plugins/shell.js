@@ -1,5 +1,6 @@
 var
-CMDS = require('command_runner');
+CMDS    = require('command_runner'),
+Promise = require('../lib/promise');
 
 
 exports.initialize = function (API, args) {

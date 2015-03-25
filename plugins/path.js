@@ -9,7 +9,7 @@ exports.initialize = function (API, args) {
   API.path.home = FilePath.home;
   API.path.datename = dateFileName;
 
-  path.expand = function (filepath) {
+  API.path.expand = function (filepath) {
     return FilePath.create(filepath.toString().replace(/^\~/, FilePath.home().toString()));
   };
 
