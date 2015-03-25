@@ -1,4 +1,5 @@
 var
+U   = require('../lib/u'),
 SSH = require('../lib/ssh');
 
 
@@ -6,34 +7,47 @@ exports.initialize = function (API, args) {
   var
   log = API.log;
 
-  // args.host
-  // args.port
-  // args.username
-  // args.password
-  // args.privateKey
-  // args.sock
-  API.ssh = function (args) {
-    return connect(args);
-  };
+  API.ssh = {
 
+    // args.host
+    // args.port
+    // args.username
+    // args.password
+    // args.privateKey
+    // args.sock
+    connect: function (args) {
+      return connect(U.clone(args));
+    },
 
-  // args.host
-  // args.port
-  // args.username
-  // args.password
-  // args.privateKey
-  // args.sock
-  API.exec = function (command, args) {
-    return connect(args)
-      .then(function (connection) {
-        return connection.exec(command);
-      });
+    // args.host
+    // args.port
+    // args.username
+    // args.password
+    // args.privateKey
+    // args.sock
+    exec: function (command, args) {
+      return connect(U.clone(args))
+        .then(function (connection) {
+          return connection.exec(command);
+        })
+        .then(function (connection) {
+          connection.end();
+          return connection;
+        });
+    }
   };
 
 
   API.sftp = {
+
+    // args.host
+    // args.port
+    // args.username
+    // args.password
+    // args.privateKey
+    // args.sock
     put: function (source, target, args) {
-      return connect(args)
+      return connect(U.clone(args))
         .then(function (connection) {
           return connection.sftp();
         })
