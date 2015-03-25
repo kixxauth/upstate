@@ -4,7 +4,17 @@ FilePath = require('filepath').FilePath,
 COLORS   = require('colors'),
 Promise  = require('./promise');
 
-exports.newLogger = function (spec) {
+exports.initialize = function (API, args) {
+  return newLogger({
+      directory : args.logDirectory,
+      filename  : args.logFilename
+    }).then(function (log) {
+      API.log = log;
+      return API;
+    });
+};
+
+function newLogger(spec) {
   return new Promise(function (resolve, reject) {
     var
     api = Object.create(null),
@@ -69,4 +79,4 @@ exports.newLogger = function (spec) {
       return resolve(api);
     });
   });
-};
+}
