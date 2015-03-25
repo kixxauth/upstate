@@ -4,8 +4,8 @@ Yargs    = require('yargs'),
 
 Promise = require('./lib/promise'),
 Objects = require('./lib/objects'),
+U       = require('./lib/u'),
 Action  = require('./lib/action').Action,
-Log     = require('./lib/log'),
 LOADER  = require('./lib/loader'),
 Configs = require('./lib/config_loader');
 
@@ -18,10 +18,10 @@ var newUpstate = Objects.factory([Action], {
 
   initialize: function (args) {
     this.q(this.parseArgv);
-    this.q(this.setValues);
     this.q(this.checkArgv);
+    this.q(this.setValues);
     this.q(this.loadConfigs);
-    this.q(this.initLogger);
+    this.q(this.runInitializers);
     this.q(this.loadTasks);
     this.q(this.checkCommand);
     this.q(this.runTask);
@@ -46,25 +46,26 @@ var newUpstate = Objects.factory([Action], {
     return args;
   },
 
-  setValues: function (args) {
-    args.environment = args.argv.env;
-    args.directory = FilePath.create().append('upstate');
-    return args;
-  },
-
   checkArgv: function (args) {
     var
-    argv = args.argv;
+    argv    = args.argv,
+    command = argv._[0];
 
-    if (!argv._.length && argv.help) {
+    if (!command && argv.help) {
       printHelpAndExit();
-    } else if (!argv._.length) {
+    } else if (!command) {
       printHelpAndExit('A command is required.');
     } else if (['help', 'run', 'tasks'].indexOf(argv._[0]) === -1) {
       printHelpAndExit('"'+ argv._[0] +'" is not a valid command');
-    } else if (!argv.env) {
+    } else if (command === 'run' && !argv.env) {
       printHelpAndExit('The -e --env argument must be passed.');
     }
+    return args;
+  },
+
+  setValues: function (args) {
+    args.environment  = args.argv.env;
+    args.directory    = FilePath.create().append('upstate');
     return args;
   },
 
@@ -75,26 +76,40 @@ var newUpstate = Objects.factory([Action], {
     }).then(function (configs) {
       args.config = configs.config;
       args.user_data = configs.user_data;
+      args.logDirectory = FilePath.create().append('log', 'upstate');
+      args.logFilename  = args.config.project_name;
       return args;
     });
   },
 
-  initLogger: function (args) {
-    return Log.newLogger({
-      directory : FilePath.create().append('log', 'upstate'),
-      filename  : args.config.project_name
-    }).then(function (api) {
-      args.log = api;
-      args.log.info('performing upstate run');
-      args.log.stdout('Performing upstate run ...');
-      return args;
-    });
+  runInitializers: function (args) {
+    var
+    API = Object.create(null);
+
+    return Promise.cast(args)
+      .then(function () {
+        return require('./initializers/log').initialize(API, args);
+      })
+      .then(function () {
+        return require('./initializers/plugins').initialize(API, args);
+      })
+      .then(function () {
+        args.log = API.log;
+        args.API = U.safeCopy(API);
+        return args;
+      })
+      .then(function (args) {
+        return args.API.git_config().then(function (git_config) {
+          args.git_config = git_config;
+          return args;
+        });
+      })
+      .then(U.constant(args));
   },
 
   loadTasks: function (args) {
     return LOADER.loadTasks({
-      task_directory : args.directory,
-      log            : args.log
+      task_directory : args.directory
     }).then(function (taskRunner) {
       args.taskRunner = taskRunner;
       return args;
@@ -117,9 +132,15 @@ var newUpstate = Objects.factory([Action], {
 
   runTask: function (args) {
     var
-    promise;
+    promise,
+    ARGS = U.safeCopy({
+      git_config: args.git_config
+    });
+
+    args.log.info('start upstate run');
+    args.log.stdout('Starting an upstate run');
     try {
-      promise = args.taskRunner.run(args.taskId, args)
+      promise = args.taskRunner.run(args.taskId, args.API, ARGS)
         .then(function (result) {
           args.result = result;
           return args;
@@ -179,6 +200,6 @@ function printTasksAndExit(tasks) {
 function printTaskHelpAndExit(task) {
   console.log('\n'+ task.id);
   console.log('\n'+ task.description);
-  console.log(task.help);
+  task.showHelp();
   process.exit(1);
 }
