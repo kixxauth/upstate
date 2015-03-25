@@ -1,0 +1,8 @@
+exports.initialize = function (API, args) {
+
+  API.git_config = function () {
+    return FilePath.create().append('.git', 'config').readIni();
+  };
+
+  return API;
+};
