@@ -1,9 +1,13 @@
 var
+U       = require('../lib/u'),
 Promise = require('../lib/promise');
 
 
 exports.initialize = function (API, args) {
-  var
+  var promises;
+
+  API.U = U;
+
   promises = [
     require('../plugins/path').initialize(API, args),
     require('../plugins/shell').initialize(API, args),
