@@ -28,6 +28,10 @@ exports.initialize = function (API, args) {
       });
     };
 
+    self.hopto = function (args2) {
+      return newHopConnection(args, args2);
+    };
+
     self.send = function () {
       return connect(U.clone(args))
         .then(execOperations);
@@ -67,10 +71,6 @@ exports.initialize = function (API, args) {
         args   : arguments
       });
       return this;
-    };
-
-    self.hop = function (args2) {
-      return newHopConnection(args, args2);
     };
 
     self.send = function () {
@@ -119,17 +119,24 @@ exports.initialize = function (API, args) {
     };
 
     self.send = function () {
-      return connect(U.clone(args))
+      return connect(U.clone(args1))
         .then(execOperations);
     };
 
     function execOperations(connection1) {
+      var
+      promise = connection1
+        .hop(args2)
+        .catch(function (err) {
+          connection1.end();
+          return Promise.reject(err);
+        });
+
       return operations.reduce(function (promise, op) {
           return promise.then(function (connection2) {
             return connection2[op.method].apply(connection2, op.args);
           });
-        }, connection1.hop(args2))
-        .then(function () {
+        }, promise).then(function (connection2) {
           connection2.end();
           connection1.end();
           return connection1;
