@@ -7,6 +7,7 @@ exports.initialize = function (API, args) {
   var promises;
 
   API.U = U;
+  API.Promise = Promise;
 
   promises = [
     require('../plugins/path').initialize(API, args),
