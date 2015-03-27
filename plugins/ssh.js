@@ -8,34 +8,44 @@ exports.initialize = function (API, args) {
   var
   log = API.log;
 
-  API.ssh = {
 
-    // args.host
-    // args.port
-    // args.username
-    // args.password
-    // args.privateKey
-    // args.sock
-    connect: function (args) {
-      return connect(U.clone(args));
-    },
+  // args.host
+  // args.port
+  // args.username
+  // args.password
+  // args.privateKey
+  // args.sock
+  API.ssh = function (args) {
+    args = args || {};
+    var
+    self = Object.create(null),
+    operations = [];
 
-    // args.host
-    // args.port
-    // args.username
-    // args.password
-    // args.privateKey
-    // args.sock
-    exec: function (command, args) {
+    self.exec = function (command) {
+      operations.push({
+        method : 'exec',
+        args   : arguments
+      });
+    };
+
+    self.send = function () {
       return connect(U.clone(args))
-        .then(function (connection) {
-          return connection.exec(command);
-        })
-        .then(function (connection) {
+        .then(execOperations);
+    };
+
+    function execOperations(connection) {
+      return operations.reduce(function (promise, op) {
+          return promise.then(function () {
+            return connection[op.method].apply(connection, op.args);
+          });
+        }, Promise.resolve(connection))
+        .then(function () {
           connection.end();
           return connection;
         });
     }
+
+    return self;
   };
 
 
@@ -53,8 +63,8 @@ exports.initialize = function (API, args) {
 
     self.put = function (source, target) {
       operations.push({
-        source : source,
-        target : target
+        method : 'put',
+        args   : arguments
       });
       return this;
     };
@@ -70,10 +80,13 @@ exports.initialize = function (API, args) {
     function execOperations(sftp) {
       return operations.reduce(function (promise, op) {
           return promise.then(function () {
-            return sftp.put(op.source, op.target);
+            return sftp[op.method].apply(sftp, op.args);
           });
         }, Promise.resolve(sftp))
-        .then(U.constant(sftp));
+        .then(function () {
+          sftp.end();
+          return sftp;
+        });
     }
 
     return self;
