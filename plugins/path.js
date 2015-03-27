@@ -14,7 +14,7 @@ exports.initialize = function (API, args) {
   };
 
   FilePath.prototype.appendDatename = function (ext) {
-    var filename = dateFileName + ext;
+    var filename = dateFileName() + (ext || '');
     return FilePath.create(this.path, filename);
   };
 
@@ -31,19 +31,17 @@ exports.initialize = function (API, args) {
 };
 
 
-function dateFileName(conf) {
-  return function () {
-    var
-    now = new Date(),
-    pad = function(num) {
-      var norm = Math.abs(Math.floor(num));
-      return (norm < 10 ? '0' : '') + norm;
-    };
-    return now.getFullYear()
-      + '_' + pad(now.getMonth()+1)
-      + '_' + pad(now.getDate())
-      + 'T' + pad(now.getHours())
-      + '.' + pad(now.getMinutes())
-      + '.' + pad(now.getSeconds());
+function dateFileName() {
+  var
+  now = new Date(),
+  pad = function(num) {
+    var norm = Math.abs(Math.floor(num));
+    return (norm < 10 ? '0' : '') + norm;
   };
+  return now.getFullYear()
+    + '_' + pad(now.getMonth()+1)
+    + '_' + pad(now.getDate())
+    + 'T' + pad(now.getHours())
+    + '.' + pad(now.getMinutes())
+    + '.' + pad(now.getSeconds());
 }
