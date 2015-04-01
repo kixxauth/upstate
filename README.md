@@ -3,6 +3,8 @@ Upstate
 
 A tool for building and managing remote applications.
 
+Sorry the docs are sorely lacking. I will create docs soon, but drop a note in the issue tracker to let me know you care ;-)
+
 
 Copyright and License
 ---------------------
