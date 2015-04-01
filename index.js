@@ -134,10 +134,11 @@ var newUpstate = Objects.factory([Action], {
     var
     promise,
     ARGS = U.safeCopy({
-      directory  : args.directory,
-      config     : args.config,
-      user_data  : args.user_data,
-      git_config : args.git_config
+      environment : args.environment,
+      directory   : args.directory,
+      config      : args.config,
+      user_data   : args.user_data,
+      git_config  : args.git_config
     });
 
     args.log.info('start upstate run');
