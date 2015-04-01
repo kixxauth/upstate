@@ -1,7 +1,7 @@
 {
   "name"         : "upstate",
   "version"      : "0.1.0",
-  "description"  : "A tool for building and managing remote applications.",
+  "description"  : "A tool for building, deploying and managing remote applications.",
   "preferGlobal" : true,
   "main"         : "index.js",
   "bin": {
@@ -23,8 +23,9 @@
     "type" : "git",
     "url"  : "https://github.com/kixxauth/upstate.git"
   },
+  "homepage" : "https://github.com/kixxauth/upstate",
   "bugs"     : "https://github.com/kixxauth/upstate/issues",
-  "keywords" : ["build", "deployment"],
+  "keywords" : ["automation", "build", "deployment"],
   "author"   : "Kris Walker <kris@kixx.name> (www.kixx.name)",
   "license"  : "MIT"
 }
