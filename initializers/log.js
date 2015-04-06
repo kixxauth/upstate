@@ -5,9 +5,10 @@ COLORS   = require('colors'),
 Promise  = require('../lib/promise');
 
 exports.initialize = function (API, args) {
+  debugger;
   return newLogger({
       directory : args.logDirectory,
-      filename  : args.logFilename
+      filename  : args.logFilename || 'upstate'
     }).then(function (log) {
       API.log = log;
       return API;
