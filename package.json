@@ -20,6 +20,7 @@
     "yargs"          : "~3.5.3"
   },
   "devDependencies": {
+    "jshint" : "~2.6.3",
     "mocha"  : "~2.2.1",
     "should" : "~5.2.0"
   },
