@@ -8,6 +8,9 @@
     "ups"     : "bin/cli.js",
     "upstate" : "bin/cli.js"
   },
+  "scripts": {
+    "test": "node bin/cli.js run test -e foo"
+  },
   "dependencies": {
     "coffee-script"  : "~1.9.1",
     "command_runner" : "~1.2.0",

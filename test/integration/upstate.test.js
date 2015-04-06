@@ -1,5 +1,7 @@
-var
-LIB = require('../common');
+/*jshint expr: true*/
+"use strict";
+
+require('../common');
 
 
 describe("integration upstate", function () {
