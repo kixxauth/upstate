@@ -1,3 +1,5 @@
+"use strict";
+
 var
 FilePath = require('filepath').FilePath,
 Yargs    = require('yargs'),
@@ -16,7 +18,7 @@ exports.main = function () {
 
 var newUpstate = Objects.factory([Action], {
 
-  initialize: function (args) {
+  initialize: function () {
     this.q(this.parseArgv);
     this.q(this.checkArgv);
     this.q(this.setValues);

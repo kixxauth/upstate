@@ -1,9 +1,11 @@
+"use strict";
+
 var
 CMDS    = require('command_runner'),
 Promise = require('../lib/promise');
 
 
-exports.initialize = function (API, args) {
+exports.initialize = function (API) {
   var
   log = API.log;
 
