@@ -21,7 +21,7 @@ exports.task = (task) ->
     return new Promise (resolve, reject) ->
       exec    = args.jshintExec.toString()
       dir     = args.jshintDir.toString()
-      proc    = CP.spawn('node', [exec, '--exclude', 'node_modules', dir])
+      proc    = CP.spawn('node', [exec, dir])
       proc.stdout.pipe(process.stdout)
       proc.stderr.pipe(process.stderr)
       proc.on 'close', (code) ->
