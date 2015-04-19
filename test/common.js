@@ -28,9 +28,9 @@ exports.exec = function (argv, options) {
     var
     stdout;
     if (res.stdout) {
-      stdout = res.stdout.split('\n');
+      stdout = res.stdout.trim().split('\n');
       try {
-        res.json = JSON.parse(stdout.slice(1).join('\n'));
+        res.json = JSON.parse(stdout.slice(2, -1).join('\n'));
       } catch (e) {
         res.json = null;
       }
