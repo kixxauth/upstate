@@ -1,9 +1,11 @@
+"use strict";
+
 var
 Promise = require('../lib/promise'),
 TPL     = require('../lib/templating');
 
 
-exports.initialize = function (API, args) {
+exports.initialize = function (API) {
   var
   log = API.log;
 

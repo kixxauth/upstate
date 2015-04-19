@@ -16,10 +16,10 @@
 TAGS
 *.tags
 
-# Log files
-logs
+# log files
 log
 *.log
 
-# node modules
-node_modules
+# Utility dirs
+test/
+

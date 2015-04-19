@@ -1,3 +1,5 @@
+"use strict";
+
 var
 UTIL     = require('util'),
 FilePath = require('filepath').FilePath,
@@ -7,7 +9,7 @@ Promise  = require('../lib/promise');
 exports.initialize = function (API, args) {
   return newLogger({
       directory : args.logDirectory,
-      filename  : args.logFilename
+      filename  : args.logFilename || 'upstate'
     }).then(function (log) {
       API.log = log;
       return API;
@@ -66,13 +68,12 @@ function newLogger(spec) {
         var norm = Math.abs(Math.floor(num));
         return (norm < 10 ? '0' : '') + norm;
       };
-      return now.getFullYear()
-        + '-' + pad(now.getMonth()+1)
-        + '-' + pad(now.getDate())
-        + 'T' + pad(now.getHours())
-        + ':' + pad(now.getMinutes())
-        + ':' + pad(now.getSeconds())
-        + dif + pad(tzo / 60);
+      return now.getFullYear() +'-'+
+        pad(now.getMonth()+1) +'-'+
+        pad(now.getDate()) +'T'+
+        pad(now.getHours()) +':'+
+        pad(now.getMinutes()) +':'+
+        pad(now.getSeconds()) + dif + pad(tzo / 60);
     }
 
     fileStream.on('open', function () {

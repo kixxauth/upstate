@@ -1,9 +1,11 @@
+"use strict";
+
 var
 FilePath = require('filepath').FilePath,
 INI      = require('ini');
 
 
-exports.initialize = function (API, args) {
+exports.initialize = function (API) {
   API.path = FilePath.create;
   API.path.root = FilePath.root;
   API.path.home = FilePath.home;
@@ -38,10 +40,10 @@ function dateFileName() {
     var norm = Math.abs(Math.floor(num));
     return (norm < 10 ? '0' : '') + norm;
   };
-  return now.getFullYear()
-    + '_' + pad(now.getMonth()+1)
-    + '_' + pad(now.getDate())
-    + 'T' + pad(now.getHours())
-    + '.' + pad(now.getMinutes())
-    + '.' + pad(now.getSeconds());
+  return now.getFullYear() +'_'+
+    pad(now.getMonth()+1) +'_'+
+    pad(now.getDate()) +'T'+
+    pad(now.getHours()) +'.'+
+    pad(now.getMinutes()) + '.' +
+    pad(now.getSeconds());
 }

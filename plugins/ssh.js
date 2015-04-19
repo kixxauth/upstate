@@ -1,10 +1,12 @@
+"use strict";
+
 var
 U       = require('../lib/u'),
 Promise = require('../lib/promise'),
 SSH     = require('../lib/ssh');
 
 
-exports.initialize = function (API, args) {
+exports.initialize = function (API) {
   var
   log = API.log;
 
@@ -21,7 +23,7 @@ exports.initialize = function (API, args) {
     self = Object.create(null),
     operations = [];
 
-    self.exec = function (command) {
+    self.exec = function () {
       operations.push({
         method : 'exec',
         args   : arguments
@@ -65,7 +67,7 @@ exports.initialize = function (API, args) {
     self = Object.create(null),
     operations = [];
 
-    self.put = function (source, target) {
+    self.put = function () {
       operations.push({
         method : 'put',
         args   : arguments
@@ -111,7 +113,7 @@ exports.initialize = function (API, args) {
     self = Object.create(null),
     operations = [];
 
-    self.exec = function (command) {
+    self.exec = function () {
       operations.push({
         method : 'exec',
         args   : arguments
